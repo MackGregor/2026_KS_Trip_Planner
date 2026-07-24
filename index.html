@@ -674,7 +674,7 @@
     <div class="eyebrow">
       <span class="rule"></span>
     </div>
-    <h1 class="masthead-title editable" contenteditable="true" data-key="title">Turner Fam 2026 KS Trip</h1>
+    <h1 class="masthead-title editable" contenteditable="true" data-key="title">2026 Turner Trip to KS</h1>
   </header>
 
   <!-- ─────────── COUNTDOWN BANNER ─────────── -->
@@ -700,16 +700,15 @@
 
   <!-- ─────────── TABS ─────────── -->
   <nav class="tabs" id="tabs">
-    <button class="tab active" data-target="calendar"><span class="num">01</span>Calendar</button>
-    <button class="tab" data-target="itinerary"><span class="num">02</span>Itinerary</button>
+    <button class="tab active" data-target="itinerary"><span class="num">01</span>Itinerary</button>
+    <button class="tab" data-target="calendar"><span class="num">02</span>Calendar</button>
     <button class="tab" data-target="places"><span class="num">03</span>Things to Do</button>
     <button class="tab" data-target="travel"><span class="num">04</span>Travel &amp; Lodging</button>
-    <button class="tab" data-target="packing"><span class="num">05</span>Packing</button>
-    <button class="tab" data-target="notes"><span class="num">06</span>Old Haunts</button>
+    <button class="tab" data-target="notes"><span class="num">05</span>Old Haunts</button>
   </nav>
 
   <!-- ─────────── CALENDAR ─────────── -->
-  <section class="panel" data-tab="calendar">
+  <section class="panel hidden" data-tab="calendar">
     <h2>Calendar</h2>
 
     <div class="cal-month" id="calMonthLabel">—</div>
@@ -722,7 +721,7 @@
   </section>
 
   <!-- ─────────── ITINERARY ─────────── -->
-  <section class="panel hidden" data-tab="itinerary">
+  <section class="panel" data-tab="itinerary">
     <h2>Daily Itinerary</h2>
     <p class="subtitle">One card per day. Click anywhere to edit. Add as many activities as you'd like.</p>
     <div id="itineraryDays"></div>
@@ -805,15 +804,6 @@
   </section>
 
   <!-- ─────────── PACKING ─────────── -->
-  <section class="panel hidden" data-tab="packing">
-    <h2>Packing</h2>
-    <p class="subtitle">Five lists, one for each crew member plus the shared bag. Add categories per person as needed.</p>
-    <div class="pack-grid" id="packGrid"></div>
-    <div style="margin-top:18px">
-      <button class="pill" id="addPackListBtn" style="background:var(--rust);color:var(--cream);border-color:var(--rust)">＋ Add packing list</button>
-    </div>
-  </section>
-
   <!-- ─────────── OLD HAUNTS ─────────── -->
   <section class="panel hidden" data-tab="notes">
     <h2>Old Haunts to Visit in MHK</h2>
@@ -840,6 +830,12 @@
 
 <script>
 const STORAGE_KEY = 'turner-kansas-trip-v6';
+
+/* ── Global error handler ── */
+window.onerror = (msg, src, line, col, err) => {
+  console.error('PLANNER ERROR at line ' + line + ': ' + msg);
+  if(err) console.error(err.stack);
+};
 
 /* ── Utility ── */
 function uid(){return Math.random().toString(36).slice(2,10)}
@@ -870,9 +866,7 @@ const DAYS = [
   ]},
   { date:'2026-07-24', region:'MHK', label:'Adam arrives in MHK', activities:[
     {time:'',                text:'🩵 Bridget in MHK'},
-    {time:'9:30am–5:00pm',   text:'🦁 Sunset Zoo', url:'https://www.sunsetzoo.com/'},
     {time:'10:59am–2:18pm',  text:'Adam: IAD → DFW · AA #1906'},
-    {time:'11:30 AM',        text:'🦥 Sloth Bear Spotlight', url:'https://www.sunsetzoo.com/3680/Animal-Spotlights'},
     {time:'Open 1:00–9:00 PM', text:'🏊 City Pool + splash pad · Pioneer Log Cabin in City Park'},
     {time:'4:00 PM',         text:'🏎️ Grandpa and Sander leave for race in Beloit', url:'https://www.discovermitchellcounty.com/event/races-at-the-mitchell-county-fair/', linkText:'race in Beloit'},
     {time:'4:43pm–6:16pm',   text:'Adam: DFW → MHK · AA #4113 (Envoy/American Eagle)'},
@@ -892,9 +886,12 @@ const DAYS = [
   ]},
   { date:'2026-07-27', region:'MHK', label:'VBS begins', activities:[
     {time:'9:00 AM–12:00 PM', text:'🛍️ Aggieville Day — Varsity Donuts, Dusty Bookshelf, Rally House'},
+    {time:'TBD',              text:'⛳ Hunt for golf balls with Grandpa'},
     {time:'6:00–8:30 PM',     text:'UCC VBS · University Christian Church (2800 Claflin Rd)', url:'https://university.church/vbs', linkText:'UCC VBS'},
   ]},
-  { date:'2026-07-28', region:'MHK', label:'', activities:[
+  { date:'2026-07-28', region:'MHK', label:'Sunset Zoo', activities:[
+    {time:'9:30am–5:00pm',   text:'🦁 Sunset Zoo · 2333 Oak St · Adults $11 · Kids (3-12) $9 · Under 2 free · Exhibits close at 4:30pm', url:'https://www.sunsetzoo.com/3673/Hours-Admission'},
+    {time:'11:30 AM',        text:'🦥 Sloth Bear Spotlight · Chautauqua Amphitheatre (call 785-587-2737 to confirm Tue time)', url:'https://www.sunsetzoo.com/3680/Animal-Spotlights', linkText:'Sloth Bear Spotlight'},
     {time:'10:00 AM–2:00 PM', text:'📷 Take family photos — location TBD'},
     {time:'6:00–8:30 PM',     text:'UCC VBS', url:'https://university.church/vbs', linkText:'UCC VBS'},
     {time:'8:00 PM',          text:'🎵 Singo at Tanner\'s — Tuesday night bingo with songs, cash & prizes — possibility', url:'https://www.visitmanhattanks.org/event/singo-at-tanners/1126/'},
@@ -938,7 +935,7 @@ const DAYS = [
 
 /* ── User-editable state (only non-day data lives here) ── */
 const DEFAULT_USER = {
-  meta:{ title:'Turner Fam 2026 KS Trip', dateRange:'July 22 – August 5, 2026', destination:'The Land of Oz', crew:'Lulu, Adam & the kids' },
+  meta:{ title:'2026 Turner Trip to KS', dateRange:'July 22 – August 5, 2026', destination:'The Land of Oz', crew:'Lulu, Adam & the kids' },
   notes:'',
   haunts:[
     {id:'ht1', text:'Pioneer Log Cabin in City Park', url:'https://www.rileychs.org/pioneer-log-cabin.cfm', done:false},
@@ -1169,6 +1166,7 @@ function jumpToDay(iso){
 function renderItinerary(){
   const c=document.getElementById('itineraryDays');
   c.innerHTML='';
+  const todayStr=toISO(new Date());
   DAYS.forEach((day,idx)=>{
     const dateLabel=parseISO(day.date).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
     const regionClass=day.region==='KC'?' kc':'';
@@ -1210,6 +1208,15 @@ function renderItinerary(){
       body.appendChild(row);
     });
   });
+
+  // Auto-scroll to today's card
+  setTimeout(()=>{
+    const cards=c.querySelectorAll('.day-card');
+    const todayIdx=DAYS.findIndex(d=>d.date===todayStr);
+    if(todayIdx>=0 && cards[todayIdx]){
+      cards[todayIdx].scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  },80);
 }
 
 /* ── Places ── */
@@ -1335,26 +1342,6 @@ function renderLodging(){
 document.getElementById('lodgingList').addEventListener('blur',e=>{ const t=e.target; if(!t.dataset.lodge) return; const l=user.lodging.find(x=>x.id===t.dataset.lodge); if(l){l[t.dataset.field]=t.textContent.trim();save()} },true);
 document.getElementById('lodgingList').addEventListener('click',e=>{ const btn=e.target.closest('[data-action="del-lodge"]'); if(!btn) return; if(confirm('Remove this stay?')){ user.lodging=user.lodging.filter(l=>l.id!==btn.dataset.lodge); save(); renderLodging(); } });
 document.getElementById('addLodgingBtn').addEventListener('click',()=>{ user.lodging.push({id:uid(),name:'New stay',dates:'',address:'',notes:''}); save(); renderLodging(); });
-
-/* ── Packing ── */
-function renderPacking(){
-  const g=document.getElementById('packGrid'); g.innerHTML='';
-  user.packing.forEach(list=>{
-    const done=list.items.filter(i=>i.done).length;
-    const card=document.createElement('div'); card.className='pack-list';
-    card.innerHTML=`<h3><span class="editable" contenteditable="true" data-pack="${list.id}" data-field="name">${escapeHtml(list.name)}</span><span class="pack-progress">${done}/${list.items.length}</span></h3><div data-pack-items="${list.id}"></div><div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center"><button class="add-row" data-action="add-pack-item" data-pack="${list.id}">+ Add item</button><button class="icon-btn danger" data-action="del-pack-list" data-pack="${list.id}">✕</button></div>`;
-    g.appendChild(card);
-    const itemsDiv=card.querySelector(`[data-pack-items="${list.id}"]`);
-    list.items.forEach((it,idx)=>{
-      const row=document.createElement('div'); row.className='pack-item'+(it.done?' done':'');
-      row.innerHTML=`<input type="checkbox" data-pack="${list.id}" data-idx="${idx}" data-field="done" ${it.done?'checked':''}><span class="text editable" contenteditable="true" data-pack="${list.id}" data-idx="${idx}" data-field="text">${escapeHtml(it.text)}</span><button class="x" data-action="del-pack-item" data-pack="${list.id}" data-idx="${idx}">✕</button>`;
-      itemsDiv.appendChild(row);
-    });
-  });
-}
-document.getElementById('packGrid').addEventListener('input',e=>{ const t=e.target; if(!t.dataset.pack) return; const list=user.packing.find(l=>l.id===t.dataset.pack); if(!list) return; if(t.type==='checkbox'){list.items[+t.dataset.idx].done=t.checked;save();renderPacking();}else if(t.dataset.field==='name'){list.name=t.textContent.trim();save();}else if(t.dataset.field==='text'){list.items[+t.dataset.idx].text=t.textContent.trim();save();} });
-document.getElementById('packGrid').addEventListener('click',e=>{ const btn=e.target.closest('[data-action]'); if(!btn) return; const list=user.packing.find(l=>l.id===btn.dataset.pack); switch(btn.dataset.action){ case 'add-pack-item': list.items.push({text:'',done:false});save();renderPacking();setTimeout(()=>{const items=document.querySelectorAll(`[data-pack-items="${list.id}"] .text`);items[items.length-1]?.focus();},30);break; case 'del-pack-item': list.items.splice(+btn.dataset.idx,1);save();renderPacking();break; case 'del-pack-list': if(confirm(`Delete the "${list.name}" list?`)){user.packing=user.packing.filter(l=>l.id!==list.id);save();renderPacking();}break; } });
-document.getElementById('addPackListBtn').addEventListener('click',()=>{ user.packing.push({id:uid(),name:'New list',items:[]}); save(); renderPacking(); });
 
 /* ── Links ── */
 function normalizeUrl(u){ u=(u||'').trim(); if(!u) return ''; if(!/^https?:\/\//i.test(u)) u='https://'+u; return u; }
@@ -1489,7 +1476,7 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
 });
 document.getElementById('printBtn').addEventListener('click',()=>{
   document.querySelectorAll('[data-tab]').forEach(p=>p.classList.remove('hidden'));
-  setTimeout(()=>{window.print();setTimeout(()=>{const activeTab=document.querySelector('.tab.active').dataset.target;document.querySelectorAll('[data-tab]').forEach(p=>p.classList.toggle('hidden',p.dataset.tab!==activeTab));},200);},100);
+  setTimeout(()=>{window.print();setTimeout(()=>{const activeTab=document.querySelector('.tab.active')?.dataset?.target;document.querySelectorAll('[data-tab]').forEach(p=>p.classList.toggle('hidden',p.dataset.tab!==activeTab));},200);},100);
 });
 
 /* ── Weather strip ── */
@@ -1506,71 +1493,100 @@ function wxCode(code){
   if(code<=99) return{icon:'⛈️',label:'Thunderstorm'};
   return{icon:'🌡️',label:'Unknown'};
 }
+function nwsIcon(forecast){
+  const f=(forecast||'').toLowerCase();
+  if(/thunder|t-storm/.test(f)) return{icon:'⛈️',label:forecast};
+  if(/heavy rain|flood/.test(f)) return{icon:'🌧️',label:forecast};
+  if(/rain shower|shower/.test(f)) return{icon:'🌦️',label:forecast};
+  if(/rain|drizzle/.test(f)) return{icon:'🌧️',label:forecast};
+  if(/snow|flurr/.test(f)) return{icon:'❄️',label:forecast};
+  if(/fog|haze/.test(f)) return{icon:'🌫️',label:forecast};
+  if(/mostly cloudy|mostly cldy/.test(f)) return{icon:'🌥️',label:forecast};
+  if(/partly cloudy|partly sunny/.test(f)) return{icon:'⛅',label:forecast};
+  if(/mostly sunny|mostly clear/.test(f)) return{icon:'🌤️',label:forecast};
+  if(/sunny|clear/.test(f)) return{icon:'☀️',label:forecast};
+  if(/cloud/.test(f)) return{icon:'☁️',label:forecast};
+  return{icon:'🌡️',label:forecast};
+}
+
 async function fetchWeather(){
   const strip=document.getElementById('weatherStrip');
+  if(!strip) return;
   strip.style.alignItems='center';
-  strip.innerHTML='<div class="weather-loading">🌡️ Loading forecast for Manhattan, KS…</div>';
-  try{
-    const today=new Date(); today.setHours(0,0,0,0);
-    const tripEnd='2026-08-05';
-    const startDate=toISO(today) > '2026-07-22' ? toISO(today) : '2026-07-22';
-    const url='https://api.open-meteo.com/v1/forecast'
-      +'?latitude=39.1836&longitude=-96.5717'
-      +'&daily=temperature_2m_max,temperature_2m_min,weathercode,precipitation_sum'
-      +'&timezone=America%2FChicago&temperature_unit=fahrenheit'
-      +'&forecast_days=16'
-      +'&start_date='+startDate+'&end_date='+tripEnd;
-    const res=await fetch(url);
-    const data=await res.json();
-    if(data.error) throw new Error(data.reason||'API error');
-    const {time,temperature_2m_max,temperature_2m_min,weathercode,precipitation_sum}=data.daily;
-    const todayStr=toISO(today);
-    strip.innerHTML='';
-    strip.style.alignItems='stretch';
+  strip.innerHTML='<div class="weather-loading">🌡️ Loading forecast…</div>';
 
-    // Show grey past-day cards for days before today
-    DAYS.forEach(d=>{
-      if(d.date >= startDate) return; // handled by API
-      const dt=parseISO(d.date);
-      const mon=dt.toLocaleDateString('en-US',{month:'short'});
-      const card=document.createElement('div');
-      card.className='weather-day';
-      card.style.opacity='.35';
-      card.innerHTML=`<div class="weather-date">${mon} ${dt.getDate()}</div><div class="weather-icon">—</div><div class="weather-temps" style="font-size:10px;color:var(--ink-soft)">past</div>`;
-      card.addEventListener('click',()=>jumpToDay(d.date));
-      strip.appendChild(card);
-    });
+  const today=new Date(); today.setHours(0,0,0,0);
+  const todayStr=toISO(today);
 
-    time.forEach((date,i)=>{
-      const d=parseISO(date);
-      const mon=d.toLocaleDateString('en-US',{month:'short'});
-      const wx=wxCode(weathercode[i]);
+  function renderError(){
+    strip.style.alignItems='center';
+    strip.innerHTML=`<div class="weather-error">Weather unavailable · <button onclick="fetchWeather()" style="font-family:'JetBrains Mono',monospace;font-size:10px;border:1px solid var(--line);background:var(--cream);padding:3px 8px;cursor:pointer;color:var(--rust)">Try again</button></div>`;
+  }
+
+  function wxIcon(code){
+    if(code===0) return'☀️';
+    if(code<=2) return'🌤️';
+    if(code===3) return'☁️';
+    if(code<=48) return'🌫️';
+    if(code<=55) return'🌦️';
+    if(code<=65) return'🌧️';
+    if(code<=77) return'❄️';
+    if(code<=82) return'🌦️';
+    if(code<=86) return'🌨️';
+    return'⛈️';
+  }
+
+  // Try three different ways to reach Open-Meteo
+  const today0=new Date(); today0.setHours(0,0,0,0);
+  const startDate=toISO(today0) > '2026-07-22' ? toISO(today0) : '2026-07-22';
+  const baseUrl='https://api.open-meteo.com/v1/forecast?latitude=39.1836&longitude=-96.5717&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=America%2FChicago&temperature_unit=fahrenheit&start_date='+startDate+'&end_date=2026-08-05';
+
+  // Proxy options in order of preference
+  const urls=[
+    baseUrl,
+    'https://corsproxy.io/?'+encodeURIComponent(baseUrl),
+    'https://api.allorigins.win/raw?url='+encodeURIComponent(baseUrl),
+  ];
+
+  let data=null;
+  for(const url of urls){
+    try{
+      const res=await fetch(url,{signal:AbortSignal.timeout(6000)});
+      if(!res.ok) continue;
+      const json=await res.json();
+      if(!json.error && json.daily){data=json; break;}
+    }catch(e){ continue; }
+  }
+
+  if(!data){ renderError(); return; }
+
+  const {time,temperature_2m_max,temperature_2m_min,weathercode}=data.daily;
+  strip.innerHTML='';
+  strip.style.alignItems='stretch';
+
+  DAYS.forEach(d=>{
+    const dt=parseISO(d.date);
+    const mon=dt.toLocaleDateString('en-US',{month:'short'});
+    const i=time.indexOf(d.date);
+    const card=document.createElement('div');
+    card.className='weather-day'+(d.date===todayStr?' today-wx':'');
+    if(d.date < todayStr) card.style.opacity='.4';
+
+    if(i>=0){
       const hi=Math.round(temperature_2m_max[i]);
       const lo=Math.round(temperature_2m_min[i]);
-      const precip=precipitation_sum[i];
-      const card=document.createElement('div');
-      card.className='weather-day'+(date===todayStr?' today-wx':'');
-      card.title=`${wx.label} · High ${hi}°F · Low ${lo}°F${precip>0?' · '+precip.toFixed(2)+'" precip':''}`;
-      card.innerHTML=`
-        <div class="weather-date">${mon} ${d.getDate()}</div>
-        <div class="weather-icon">${wx.icon}</div>
-        <div class="weather-temps">${hi}° <span class="lo">${lo}°</span></div>
-        ${precip>0.01?`<div class="weather-precip">${precip.toFixed(2)}"</div>`:''}
-      `;
-      card.addEventListener('click',()=>jumpToDay(date));
-      strip.appendChild(card);
-    });
+      card.innerHTML=`<div class="weather-date">${mon} ${dt.getDate()}</div><div class="weather-icon">${wxIcon(weathercode[i])}</div><div class="weather-temps">${hi}° <span class="lo">${lo}°</span></div>`;
+    } else {
+      card.innerHTML=`<div class="weather-date">${mon} ${dt.getDate()}</div><div class="weather-icon" style="font-size:14px;color:var(--ink-soft)">—</div><div class="weather-temps" style="font-size:10px;color:var(--ink-soft)">${d.date<todayStr?'past':'—'}</div>`;
+    }
+    card.addEventListener('click',()=>jumpToDay(d.date));
+    strip.appendChild(card);
+  });
 
-    // Scroll today into view
-    setTimeout(()=>{
-      const todayCard=strip.querySelector('.today-wx');
-      if(todayCard) todayCard.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
-    },100);
-
-  }catch(e){
-    strip.style.alignItems='center';
-    strip.innerHTML='<div class="weather-error">Weather unavailable · <button onclick="fetchWeather()" style="font-family:\'JetBrains Mono\',monospace;font-size:10px;border:1px solid var(--line);background:var(--cream);padding:3px 8px;cursor:pointer;color:var(--rust)">Try again</button></div>';
-  }
+  setTimeout(()=>{
+    const todayCard=strip.querySelector('.today-wx');
+    if(todayCard) todayCard.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  },100);
 }
 fetchWeather();
 
@@ -1581,13 +1597,12 @@ function renderAll(){
   renderItinerary();
   renderPlaces();
   renderTravel();
-  renderPacking();
   renderLinks();
   renderReminders();
   renderHaunts();
   updateCountdown();
 }
-renderAll();
+try { renderAll(); } catch(e) { console.error('renderAll failed:', e); }
 </script>
 </body>
 </html>
